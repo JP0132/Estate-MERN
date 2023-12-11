@@ -105,7 +105,7 @@ export default function SignUp() {
             </div>
 
             <button className="py-2 w-full mt-5 flex justify-center items-center text-sm bg-white rounded-xl border">
-              <FaGoogle className="text-blue-900 text-xl mr-3" /> Login with
+              <FaGoogle className="text-blue-900 text-xl mr-3" /> Sign up with
               Google
             </button>
 
