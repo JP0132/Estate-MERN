@@ -1,10 +1,53 @@
-import React from "react";
+import React, { useState } from "react";
 import LoginImage from "../assets/login.jpg";
 import { FaEye } from "react-icons/fa";
 import { FaGoogle } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function LogIn() {
+  const [formData, setFormData] = useState({});
+  const [isLoading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  // Saving the data entered into the form each time a change occurs.
+  // Spread operator used to keep all previous data when new data is entered.
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value,
+    });
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault(); // Page will not refresh when submitting form.
+
+    try {
+      setLoading(true);
+      // Proxy is in vite.config.js
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        setError(data.message);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(false);
+      setError(null);
+      navigate("/");
+      // console.log(data);
+    } catch (error) {
+      setLoading(false);
+      setError(error.message);
+    }
+  };
   return (
     <div className="mt-5">
       <section className="bg-gray-50 min-h-screen flex items-center justify-center">
@@ -13,13 +56,18 @@ export default function LogIn() {
             <h2 className="font-bold text-2xl text-blue-900">Login</h2>
             <p className="text-sm mt-4 text-blue-900">Login to your account!</p>
 
-            <form className="flex flex-col gap-4" action="">
+            <form
+              onSubmit={handleFormSubmit}
+              className="flex flex-col gap-4"
+              action=""
+            >
               <input
                 className="p-2 mt-8 rounded-xl border"
                 type="text"
                 name="email"
                 placeholder="Email"
                 id="email"
+                onChange={handleChange}
               />
               <div className="relative ">
                 <input
@@ -28,10 +76,16 @@ export default function LogIn() {
                   name="password"
                   placeholder="Password"
                   id="password"
+                  onChange={handleChange}
                 />
                 <FaEye className="text-blue-900 absolute top-1/2 right-3 -translate-y-1/2" />
               </div>
-              <button className="bg-slate-700 text-white py-3 rounded-xl uppercase hover:opacity-95 disabled:opacity-80">Login</button>
+              <button
+                disabled={isLoading}
+                className="bg-slate-700 text-white py-3 rounded-xl uppercase hover:opacity-95 disabled:opacity-80"
+              >
+                {isLoading ? "Loading..." : "Login"}
+              </button>
             </form>
             <div className="mt-10 grid grid-cols-3 items-center text-gray-500">
               <hr className="border-gray-500" />
@@ -53,6 +107,7 @@ export default function LogIn() {
                 </button>
               </Link>
             </div>
+            {error && <p className="text-red-500 mt-5">{error}</p>}
           </div>
           <div className="w-1/2 sm:block hidden">
             <img className="rounded-2xl" src={LoginImage} alt="" />

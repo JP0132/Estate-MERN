@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from "react";
+import React, {useState } from "react";
 import LoginImage from "../assets/login.jpg";
 import { FaEye } from "react-icons/fa";
 import { FaGoogle } from "react-icons/fa";
