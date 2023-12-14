@@ -3,12 +3,18 @@ import LoginImage from "../assets/login.jpg";
 import { FaEye } from "react-icons/fa";
 import { FaGoogle } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInFailure,
+  signInStart,
+  signInSuccess,
+} from "../redux/user/userSlice";
 
 export default function LogIn() {
   const [formData, setFormData] = useState({});
-  const [isLoading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const {loading, error} = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // Saving the data entered into the form each time a change occurs.
   // Spread operator used to keep all previous data when new data is entered.
@@ -23,7 +29,7 @@ export default function LogIn() {
     e.preventDefault(); // Page will not refresh when submitting form.
 
     try {
-      setLoading(true);
+      dispatch(signInStart());
       // Proxy is in vite.config.js
       const res = await fetch("/api/auth/login", {
         method: "POST",
@@ -34,18 +40,15 @@ export default function LogIn() {
       });
       const data = await res.json();
       if (data.success === false) {
-        setError(data.message);
-        setLoading(false);
+        dispatch(signInFailure(data.message));
         return;
       }
 
-      setLoading(false);
-      setError(null);
+      dispatch(signInSuccess(data));
       navigate("/");
       // console.log(data);
     } catch (error) {
-      setLoading(false);
-      setError(error.message);
+      dispatch(signInFailure(data.message));
     }
   };
   return (
@@ -81,10 +84,10 @@ export default function LogIn() {
                 <FaEye className="text-blue-900 absolute top-1/2 right-3 -translate-y-1/2" />
               </div>
               <button
-                disabled={isLoading}
+                disabled={loading}
                 className="bg-slate-700 text-white py-3 rounded-xl uppercase hover:opacity-95 disabled:opacity-80"
               >
-                {isLoading ? "Loading..." : "Login"}
+                {loading ? "Loading..." : "Login"}
               </button>
             </form>
             <div className="mt-10 grid grid-cols-3 items-center text-gray-500">
