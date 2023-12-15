@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import LoginImage from "../assets/login.jpg";
 import { FaEye } from "react-icons/fa";
-import { FaGoogle } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -9,6 +8,7 @@ import {
   signInStart,
   signInSuccess,
 } from "../redux/user/userSlice";
+import OAuth from "../components/OAuth";
 
 export default function LogIn() {
   const [formData, setFormData] = useState({});
@@ -96,10 +96,7 @@ export default function LogIn() {
               <hr className="border-gray-500" />
             </div>
 
-            <button className="py-2 w-full mt-5 flex justify-center items-center text-sm bg-white rounded-xl border">
-              <FaGoogle className="text-blue-900 text-xl mr-3" /> Login with
-              Google
-            </button>
+            <OAuth buttonText={"Login with Google"}/>
 
             <hr className="mt-5 border-gray-500" />
             <div className="mt-3 text-xs flex justify-between items-center">

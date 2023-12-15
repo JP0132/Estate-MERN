@@ -17,6 +17,7 @@ export const signup = async (req, res, next) => {
     next(errorHandler(550, error.message));
   }
 };
+
 export const login = async (req, res, next) => {
   const { email, password } = req.body;
   try {
@@ -36,7 +37,7 @@ export const login = async (req, res, next) => {
 
     //Removes the password, so when sending response back to user password is not seen.
     //Makes the application more secure.
-    const {password: pass, ...userInfo} = validUser._doc;
+    const { password: pass, ...userInfo } = validUser._doc;
 
     // Created a cookie to store the token in creating a session for the user.
     // Cookie expires in a couple of months.
@@ -44,11 +45,71 @@ export const login = async (req, res, next) => {
     res
       .cookie("access_token", token, {
         httpOnly: true,
-        expires: new Date(Date.now() + 24 * 60 * 60 * 60 * 1000),
       })
       .status(200)
       .json(userInfo);
   } catch (error) {
+    next(error);
+  }
+};
+
+//For google authentication
+export const google = async (req, res, next) => {
+  
+  try {
+    
+    //If the user email is already in the mongo db then 
+    //Log them in.
+    const user = await User.findOne({ email: req.body.email });
+
+    if (user) {
+      //console.log("I am here");
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      //console.log("I am here2");
+      const { password: pass, ...rest } = user._doc;
+      res
+        .cookie("access_token", token, {
+          httpOnly: true,
+        })
+        .status(200)
+        .json(rest);
+
+    } else {
+
+      //Create a random 16 character password
+      //Adds the user to the mongo db since they used google they have
+      //no password so auto generate so they can be added.
+      const generatedPassword =
+        Math.random().toString(36).slice(-8) +
+        Math.random().toString(36).slice(-8);
+
+      const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+
+      //Creating a unique username to avoid conflict
+      const randomUsername =
+        req.body.name.split(" ").join("").toLowerCase() +
+        Math.random().toString(36).slice(-4);
+
+      //Add the user
+      const newUser = new User({
+        username: randomUsername,
+        email: req.body.email,
+        password: hashedPassword,
+        avatar: req.body.photo,
+      });
+      await newUser.save();
+      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+      const { password: pass, ...rest } = newUser._doc;
+      res
+        .cookie("access_token", token, {
+          httpOnly: true,
+          SameSite: None,
+        })
+        .status(200)
+        .json(rest);
+    }
+  } catch (error) {
+    //console.log(error);
     next(error);
   }
 };

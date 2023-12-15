@@ -1,8 +1,8 @@
-import React, {useState } from "react";
+import React, { useState } from "react";
 import LoginImage from "../assets/login.jpg";
 import { FaEye } from "react-icons/fa";
-import { FaGoogle } from "react-icons/fa";
-import { Link, useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import OAuth from "../components/OAuth";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
@@ -41,7 +41,7 @@ export default function SignUp() {
 
       setLoading(false);
       setError(null);
-      navigate('/sign-in');
+      navigate("/sign-in");
       // console.log(data);
     } catch (error) {
       setLoading(false);
@@ -104,10 +104,7 @@ export default function SignUp() {
               <hr className="border-gray-500" />
             </div>
 
-            <button className="py-2 w-full mt-5 flex justify-center items-center text-sm bg-white rounded-xl border">
-              <FaGoogle className="text-blue-900 text-xl mr-3" /> Sign up with
-              Google
-            </button>
+            <OAuth buttonText={"Sign up with Google"} />
 
             <hr className="mt-5 border-gray-500" />
             <div className="mt-3 text-xs flex justify-between items-center">
